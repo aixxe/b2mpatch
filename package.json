@@ -1,0 +1,14 @@
+{
+  "name": "b2mpatch",
+  "author": "aixxe",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cheerio": "^1.0.0-rc.12",
+    "commander": "^9.4.0",
+    "isolated-vm": "^4.4.1",
+    "npmlog": "^6.0.2",
+    "sanitize-filename": "^1.6.3"
+  }
+}
