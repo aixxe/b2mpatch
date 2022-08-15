@@ -8,7 +8,7 @@ const axios = require('axios');
 const { program } = require('commander');
 const sanitize = require('sanitize-filename');
 const parse = require('./src/parser');
-const convert = require('./src/converter');
+const { convert } = require('./src/converter');
 const Sandbox = require('./src/sandbox');
 
 program.name('b2mpatch')
@@ -23,7 +23,7 @@ program.name('b2mpatch')
     const options = program.opts();
 
     if (options.url.length !== options.dir.length)
-        return console.error('--url and --dir must have the same number of arguments');
+        return log.error('init', '--url and --dir must have the same number of arguments');
 
     if (!fs.existsSync(options.output))
         fs.mkdirSync(options.output, { recursive: true });

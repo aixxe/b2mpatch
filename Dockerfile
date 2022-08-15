@@ -1,7 +1,7 @@
 FROM node:18.7.0-alpine as buildenv
 
 COPY src/ /build/src/
-COPY b2mpatch.js package.json package-lock.json /build/
+COPY b2mpatch.js diff2patch.js package.json package-lock.json /build/
 
 WORKDIR /build
 
@@ -18,4 +18,4 @@ WORKDIR /home/node
 
 COPY --from=buildenv --chown=node:node /build/ .
 
-ENTRYPOINT ["node", "b2mpatch.js"]
+ENTRYPOINT ["node"]

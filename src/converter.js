@@ -95,4 +95,4 @@ const convert = async (dir, container) =>
     return result.join('\n');
 }
 
-module.exports = convert;
+module.exports = { fileOffsetToRva, formatBytes, convert };
