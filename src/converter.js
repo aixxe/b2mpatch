@@ -4,6 +4,7 @@ const PE = require('pe-parser');
 const fs = require('node:fs');
 const log = require('npmlog');
 const path = require('node:path');
+const sanitize = require('sanitize-filename');
 
 /**
  * Convert file offset to a relative virtual address.
@@ -41,11 +42,17 @@ const formatBytes = (bytes) =>
  */
 const convert = async (dir, container) =>
 {
-    // Ensure the file this patcher is targeting exists.
-    const exe = path.resolve(dir, container.fname);
+    // Try to use the description of the Patcher as the initial filename.
+    let exe = path.resolve(dir, sanitize(container.description) + path.extname(container.fname));
 
     if (!fs.existsSync(exe))
-        return log.error('convert', 'target executable "%s" does not exist', exe);
+    {
+        log.warn('convert', 'target file "%s" does not exist, falling back to "%s"...', exe, container.fname);
+        exe = path.resolve(dir, container.fname);
+    }
+
+    if (!fs.existsSync(exe))
+        return log.error('convert', 'target file "%s" does not exist', exe);
 
     let data = fs.readFileSync(exe);
     let pe = await PE.Parse(data);
