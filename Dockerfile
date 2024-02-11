@@ -1,16 +1,13 @@
-FROM node:18.7.0-alpine as buildenv
+FROM node:21.6.1-alpine as buildenv
 
 COPY src/ /build/src/
 COPY b2mpatch.js diff2patch.js package.json package-lock.json /build/
 
 WORKDIR /build
 
-RUN apk add --no-cache python3 make g++ \
- && npm install
+RUN npm install
 
-FROM node:18.7.0-alpine
-
-RUN apk add --no-cache pev
+FROM node:21.6.1-alpine
 
 USER node
 
