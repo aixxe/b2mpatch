@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
+const PE = require('pe-parser');
 const fs = require('node:fs');
 const log = require('npmlog');
 const path = require('node:path');
@@ -55,12 +56,18 @@ log.info('convert', 'writing %d patches to file "%s"...', patches.length, option
 const basename = path.basename(options.original);
 const output = fs.createWriteStream(options.patch);
 
-for (const patch of patches)
+(async () =>
 {
-    const offset = fileOffsetToRva(options.original, patch.offset);
+    for (const patch of patches)
+    {
+        let data = fs.readFileSync(options.original);
+        let pe = await PE.Parse(data);
 
-    const on_bytes = formatBytes(patch.on);
-    const off_bytes = formatBytes(patch.off);
+        const offset = fileOffsetToRva(pe, patch.offset);
 
-    output.write(`${basename} ${offset} ${on_bytes} ${off_bytes}\n`);
-}
+        const on_bytes = formatBytes(patch.on);
+        const off_bytes = formatBytes(patch.off);
+
+        output.write(`${basename} ${offset} ${on_bytes} ${off_bytes}\n`);
+    }
+}) ();
