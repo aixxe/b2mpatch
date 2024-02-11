@@ -61,24 +61,22 @@ const convert = async (dir, container) =>
     let result = [];
 
     // Convert each patch to mempatch-hook format.
-    container.args.forEach(item =>
+    for (const item of container.args)
     {
         // Skip number patches as they can't easily be converted.
         if ('type' in item && item.type === 'number')
-            return log.warn('convert', 'number patch not supported, skipping "%s"...', item.name);
+        {
+            log.warn('convert', 'number patch not supported, skipping "%s"...', item.name);
+            continue;
+        }
 
         const is_union = ('type' in item && item.type === 'union');
 
         let output = `# ${item.name}\n`;
 
-        for (let i = 0; i < item.patches.length; ++i)
+        for (const patch of item.patches)
         {
-            // First entry in a union is always the default.
-            if (is_union && i === 0)
-                continue;
-
             // Convert file offsets to relative virtual addresses used by mempatch-hook.
-            const patch = item.patches[i];
             const offset = fileOffsetToRva(pe, is_union ? item.offset: patch.offset);
 
             if (!offset)
@@ -86,17 +84,19 @@ const convert = async (dir, container) =>
 
             // Format patch bytes in the expected mempatch-hook format.
             const on_bytes = formatBytes(is_union ? patch.patch: patch.on);
-            const off_bytes = formatBytes(is_union ? item.patches[0].patch: patch.off);
+            const off_bytes = formatBytes(is_union ?
+                [...data.slice(item.offset, item.offset + patch.patch.length)]: patch.off);
 
             // Prefix union options with '##' characters.
             if (is_union)
                 output += `## ${patch.name}\n`;
 
-            output += `# ${container.fname} ${offset} ${on_bytes} ${off_bytes}\n`;
+            const line = `${container.fname} ${offset} ${on_bytes} ${off_bytes}\n`;
+            output += (is_union && on_bytes === off_bytes) ? line: `# ${line}`;
         }
 
         result.push(output);
-    });
+    }
 
     log.info('convert', 'successfully converted %d patches for "%s" version "%s"',
         result.length, container.fname, container.description);
