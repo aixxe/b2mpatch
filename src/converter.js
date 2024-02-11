@@ -1,27 +1,26 @@
 'use strict';
 
+const PE = require('pe-parser');
 const fs = require('node:fs');
 const log = require('npmlog');
 const path = require('node:path');
-const child_process = require('node:child_process');
 
 /**
- * Invoke ofs2rva to convert a file offset to a relative virtual address.
+ * Convert file offset to a relative virtual address.
  *
- * @param exe Path to the target executable.
+ * @param pe Parsed portable executable.
  * @param offset File offset to convert.
  * @returns {string|void}
  */
-const fileOffsetToRva = (exe, offset) =>
+const fileOffsetToRva = (pe, offset) =>
 {
-    offset = '0x' + offset.toString(16).toUpperCase();
+    for (const section of pe.sections)
+    {
+        if (offset < section.PointerToRawData || offset >= section.PointerToRawData + section.SizeOfRawData)
+            continue;
 
-    const result = child_process.execSync('ofs2rva ' + offset + ' "' + exe + '"').toString();
-
-    if (!result.startsWith('0x'))
-        return log.error('convert', 'failed to convert offset %s to rva using file %s', offset, exe);
-
-    return result.substring(2).trim().toUpperCase();
+        return (offset - section.PointerToRawData + section.VirtualAddress).toString(16).toUpperCase();
+    }
 }
 
 /**
@@ -48,6 +47,9 @@ const convert = async (dir, container) =>
     if (!fs.existsSync(exe))
         return log.error('convert', 'target executable "%s" does not exist', exe);
 
+    let data = fs.readFileSync(exe);
+    let pe = await PE.Parse(data);
+
     // Start building the output string.
     let result = [];
 
@@ -70,7 +72,7 @@ const convert = async (dir, container) =>
 
             // Convert file offsets to relative virtual addresses used by mempatch-hook.
             const patch = item.patches[i];
-            const offset = fileOffsetToRva(exe, is_union ? item.offset: patch.offset);
+            const offset = fileOffsetToRva(pe, is_union ? item.offset: patch.offset);
 
             if (!offset)
                 continue;
