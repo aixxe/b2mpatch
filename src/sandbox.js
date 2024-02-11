@@ -1,6 +1,6 @@
 'use strict';
 
-const ivm = require('isolated-vm');
+const vm = require('node:vm');
 const log = require('npmlog');
 
 class Sandbox
@@ -10,27 +10,26 @@ class Sandbox
      */
     constructor()
     {
-        this.patches = [];
+        this.context = {
+            // Expose a method to the sandbox for storing patches in this class.
+            store: (fname, description, args) =>
+            {
+                this.patches.push({ fname, description, args });
+                log.info('store', 'found %i patches for "%s" version "%s"', args.length, fname, description);
+            }
+        };
 
-        this.isolate = new ivm.Isolate();
-        this.context = this.isolate.createContextSync();
-
-        // Expose a method to the sandbox for storing patches in this class.
-        this.context.global.setSync('store', (fname, description, args) =>
-        {
-            this.patches.push({ fname, description, args });
-            log.info('store', 'found %i patches for "%s" version "%s"', args.length, fname, description);
-        });
+        vm.createContext(this.context);
 
         // Create bare minimum globals for getting the BemaniPatcher code to run.
-        this.context.evalSync(
+        vm.runInContext(
             `// Invoke event listeners immediately.
             const window = { addEventListener: (type, callback) => callback() };
             
             // Copy patches into the sandbox.
             const Patcher = function(fname, description, args) { store(fname, description, args); };
-            const PatchContainer = function(patchers) {};`
-        );
+            const PatchContainer = function(patchers) {};`,
+        this.context);
     }
 
     /**
@@ -42,7 +41,7 @@ class Sandbox
     run = (script) =>
     {
         this.patches = [];
-        this.context.evalSync(script);
+        vm.runInContext(script, this.context);
 
         return this.patches;
     }
