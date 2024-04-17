@@ -46,9 +46,9 @@ example.exe 447A0B 4584ED750E 4AD3FF80F8
 # example.exe 447A0B 40488B00FF 4AD3FF80F8
 ```
 
----
+### Extra scripts
 
-Additionally, `diff2patch.js` can be used to generate a mempatch file from two binaries.
+`diff2patch.js` can be used to generate a mempatch file from two binaries.
 
 ```bash
 # generate omnimix patch using the original and modified binaries
@@ -56,4 +56,22 @@ docker run --rm -it -u $(id -u):$(id -g) -v $(pwd):/data aixxe/b2mpatch diff2pat
   --original=/data/bin/2018091900/bm2dx.dll                                           \
   --modified=/data/bin/2018091900/bm2dx_omni.dll                                      \
   --patch=/data/patches/2018-09-19-omnimix.mph
+```
+
+`b2spice.js` converts BemaniPatcher patches to [proposed](https://github.com/spice2x/spice2x.github.io/issues/161) remote patch format.
+
+Assuming the following directory structure:
+
+```
+bin
+└── 2023090500
+    ├── 2023-09-05 (LDJ-003).dll
+    ├── 2023-09-05 (LDJ-010).dll
+    └── 2023-09-05 (LDJ-012).dll
+```
+
+```bash
+docker run --rm -it -u $(id -u):$(id -g) -v $(pwd):/data aixxe/b2mpatch b2spice.js \
+  --url=https://github.com/mon/BemaniPatcher/raw/master/resident.html              \
+  --prefix=LDJ --dir=/data/bin/2023090500 --output=/data/resources/
 ```

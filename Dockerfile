@@ -1,7 +1,7 @@
 FROM node:21.6.1-alpine as buildenv
 
 COPY src/ /build/src/
-COPY b2mpatch.js diff2patch.js package.json package-lock.json /build/
+COPY b2mpatch.js diff2patch.js b2spice.js package.json package-lock.json /build/
 
 WORKDIR /build
 
