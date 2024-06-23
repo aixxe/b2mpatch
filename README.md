@@ -8,11 +8,11 @@ A pre-built image is available on Docker Hub.
 
 ```bash
 # convert iidx 25, 26, 27 & 28 patches
-docker run --rm -it -u $(id -u):$(id -g) -v $(pwd):/data aixxe/b2mpatch b2mpatch.js                 \
-  --dir=/data/bin/2018091900 --url=https://github.com/mon/BemaniPatcher/raw/master/ballerz.html     \
-  --dir=/data/bin/2019090200 --url=https://github.com/mon/BemaniPatcher/raw/master/rootage.html     \
-  --dir=/data/bin/2020092900 --url=https://github.com/mon/BemaniPatcher/raw/master/heroicverse.html \
-  --dir=/data/bin/2021091500 --url=https://github.com/mon/BemaniPatcher/raw/master/bistrover.html   \
+docker run --rm -it -u $(id -u):$(id -g) -v $(pwd):/data aixxe/b2mpatch b2mpatch.js    \
+  --dir=/data/bin/2018091900 --url=https://mon.im/bemanipatcher/iidx25ballerz.html     \
+  --dir=/data/bin/2019090200 --url=https://mon.im/bemanipatcher/iidx26rootage.html     \
+  --dir=/data/bin/2020092900 --url=https://mon.im/bemanipatcher/iidx27heroicverse.html \
+  --dir=/data/bin/2021091500 --url=https://mon.im/bemanipatcher/iidx28bistrover.html   \
   --output=/data/patches/
 ```
 
@@ -72,6 +72,6 @@ bin
 
 ```bash
 docker run --rm -it -u $(id -u):$(id -g) -v $(pwd):/data aixxe/b2mpatch b2spice.js \
-  --url=https://github.com/mon/BemaniPatcher/raw/master/resident.html              \
+  --url=https://mon.im/bemanipatcher/iidx30resident.html                           \
   --prefix=LDJ --dir=/data/bin/2023090500 --output=/data/resources/
 ```
