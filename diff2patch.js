@@ -13,6 +13,7 @@ program.name('diff2patch')
     .requiredOption('-o, --original <file>', 'original binary')
     .requiredOption('-m, --modified <file>', 'modified binary')
     .requiredOption('-p, --patch <file>', 'output patch file')
+    .option('-f, --file', 'use file offsets instead of rva')
     .parse();
 
 const options = program.opts();
@@ -63,7 +64,9 @@ const output = fs.createWriteStream(options.patch);
         let data = fs.readFileSync(options.original);
         let pe = await PE.Parse(data);
 
-        const offset = fileOffsetToRva(pe, patch.offset);
+        const offset = options.file ?
+            'F+' + patch.offset.toString(16).toUpperCase():
+            fileOffsetToRva(pe, patch.offset);
 
         const on_bytes = formatBytes(patch.on);
         const off_bytes = formatBytes(patch.off);
